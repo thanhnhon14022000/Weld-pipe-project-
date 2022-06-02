@@ -40,7 +40,7 @@ for c in contour:
         box = np.int0(box)
         cv.drawContours(img,[box],0,(0,0,255),2)
     
-# cv.line(img,(300,0),(300,60),(255,0,0),2)
+cv.line(img,(300,0),(300,60),(255,0,0),2)
 
 cv.imshow('Threshol ong han', b_image)
 cv.imshow('Onghan', img)
