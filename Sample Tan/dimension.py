@@ -4,7 +4,7 @@ from scipy.spatial import distance as dist
 from imutils import perspective
 
 # Load hình ảnh dưới dạng ảnh màu
-img = cv.imread('sach.jpg',cv.IMREAD_COLOR)
+img = cv.imread('processingImage\Image2.jpg',cv.IMREAD_COLOR)
 img = cv.resize(img, dsize=(600, 600))
 
 # Chuyển đổi ảnh màu sang ảnh xám
