@@ -12,16 +12,17 @@ dimensionDrop = 20
 
 img = cv.imread('processingImage\Image2.jpg', cv.IMREAD_COLOR)
 img = cv.resize(img, dsize = (sizeH,SizeW))
-img = img[270:330,:]
+img = img[290:310,200:400]
 
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
-plt.hist(gray.ravel(),256,[0,256]); plt.show()
+# plt.hist(gray.ravel(),256,[0,256]); plt.show()
 
 roi = gray[0:15,0:15]
-# thresh = np.mean(roi)
+thresh_roi = np.mean(roi)-10
+print(thresh_roi)
 # print(thresh)
-thresh = 15
+thresh = 60
 height = img.shape[0]
 width = img.shape[1]
 
@@ -30,17 +31,13 @@ print('Chieu dai cua buc hinh', height)
 
 b_image = cv.threshold(gray, thresh, 255, cv.THRESH_BINARY_INV)[1]
 
-contour, hierachy = cv.findContours(b_image,cv.RETR_TREE,cv.CHAIN_APPROX_SIMPLE)
-for c in contour:
-    if cv.contourArea(c) > 10:
-        area = cv.contourArea(c)
-        print(area)
-        rect = cv.minAreaRect(c)
-        box = cv.boxPoints(rect)
-        box = np.int0(box)
-        cv.drawContours(img,[box],0,(0,0,255),2)
-    
-cv.line(img,(300,0),(300,60),(255,0,0),2)
+lines = cv.HoughLinesP(b_image, 1, np.pi/180, 10, minLineLength=5, maxLineGap=8)
+
+for line in lines:
+    x1,y1,x2,y2 = line[0]
+    cv.line(img,(x1,y1),(x2,y2),(0,255,0),1)
+print(lines)
+cv.line(img,(100,0),(100,20),(255,0,0),2)
 
 cv.imshow('Threshol ong han', b_image)
 cv.imshow('Onghan', img)
