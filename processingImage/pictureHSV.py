@@ -11,7 +11,7 @@ centerimg = (sizeH/2, SizeW/2)
 dimensionDrop = 20
 # Load Image
 
-img = cv.imread('processingImage\hinh2.jpg', cv.IMREAD_COLOR)
+img = cv.imread('E:\Processing Image\processingImage\picture\hinh1.jpg', cv.IMREAD_COLOR)
 img = cv.resize(img, dsize = (sizeH,SizeW))
 img = img[270:330,:]
 
