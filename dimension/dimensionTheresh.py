@@ -11,12 +11,12 @@ centerimg = (sizeH/2, SizeW/2)
 dimensionDrop = 20
 # Load Image
 
-img = cv.imread('image\imageBeauty\image_50.png', cv.IMREAD_COLOR)
+img = cv.imread('image\imageBeauty\image_1.png', cv.IMREAD_COLOR)
 img = cv.resize(img, dsize = (sizeH,SizeW))
 gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
 
-roi = gray[0:600,100:200]
+roi = gray[0:600,100:300]
 
 thresh = np.mean(roi)-30
 
