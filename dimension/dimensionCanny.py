@@ -13,8 +13,8 @@ SizeW = 600
 center = int(sizeH / 2)
 dimensionDrop = 20
 leftframe = 290
-rightframe = 302
-
+rightframe = 310
+centerFrame = int((rightframe-leftframe/2))
 
 # function returns current size of pipe
 def dimensition(size): 
@@ -77,19 +77,44 @@ def processDimension(img):
         #                 (0, 0, 255), 2)
     return a
 
-# def detectWeld(img):
-#     imgD = img[270:330,:]
+def detectWeld(img):
+    imgD = img[270:330,:]
 
-# Dimension constant
+    #Camera center line and center frame
+    cv.line(imgD,(center,0),(center,60),(0,255,0),1)
+    cv.rectangle(imgD, (leftframe, 0), (rightframe,60), (0,0,255),1)
 
+    img_gray = cv.cvtColor(imgD, cv.COLOR_BGR2GRAY)
+    img_gray_ct = cv.addWeighted(img_gray, alpha, np.zeros(img_gray.shape, img_gray.dtype), 0, beta)
 
+    blur_img = cv.blur(img_gray_ct, (7,7))
+    binary_img = cv.adaptiveThreshold(blur_img, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 21, 2)
+    binary_img = cv.erode(binary_img, None, iterations=2)
+    skeleton_img = cv.ximgproc.thinning(binary_img, 0)
+
+    lines = cv.HoughLinesP(skeleton_img, 1, np.pi/180, 20, minLineLength=30, maxLineGap=10)
+
+    for line in lines:
+        x1,y1,x2,y2 = line[0]
+        if(abs(x1-x2)) < 5:
+            weld = line[0]
+            print(line)
+            cv.line(imgD,(x1,y1),(x2,y2),(255,0,0),1)
+
+    if weld[0] > leftframe and weld[0] < rightframe:
+            print('Mối hàn đã vào tâm') 
+    cv.imshow('Onghan1', imgD)
 
 # Load Image
-img = cv.imread('image\imageBeauty\image_30.png', cv.IMREAD_COLOR)
+img = cv.imread('image\imageBeauty\image_19.png', cv.IMREAD_COLOR)
 img = cv.resize(img, dsize = (sizeH,SizeW))
+
 size = processDimension(img)
+detectWeld(img)
 
 print('Kich thuoc cua size:', size)
+
 cv.imshow('Onghan', img)
+
 cv.waitKey(0)
 cv.destroyAllWindows()
