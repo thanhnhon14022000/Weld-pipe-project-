@@ -24,8 +24,12 @@ def dimensition(size):
     if size >=54:
         size = 60
     return size
+    
+#The function returns the midpoint of the line
+def midpoint(ptA, ptB):
+        return ((ptA[0] + ptB[0]) / 2, (ptA[1] + ptB[1]) / 2)
 
-
+# function that returns the size of the pipe
 def processDimension(img):
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
@@ -34,9 +38,6 @@ def processDimension(img):
     out_1 = cv.morphologyEx(canny,cv.MORPH_CLOSE,kenel,iterations=1)
 
     contour, hierachy = cv.findContours(out_1,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE)
-
-    def midpoint(ptA, ptB):
-        return ((ptA[0] + ptB[0]) / 2, (ptA[1] + ptB[1]) / 2)
 
     for c in contour:
         if cv.contourArea(c) < 3000:
@@ -58,11 +59,11 @@ def processDimension(img):
         Hr = round(H*P,1)*10
         print('Kich thuoc cua ong: ', Hr)
         a = dimensition(Hr)
-        # print('Kich thuoc cua ong sau khi scale',a)
-        # cv.putText(img, "{:.1f} mm".format(Hr), (int(Hx - 15), int(Hy)), cv.FONT_HERSHEY_SIMPLEX, 1,
-        #                 (0, 0, 255), 2)
-        # cv.putText(img, "{:.1f} mm".format(Wr), (int(Ex), int(Ey-10)), cv.FONT_HERSHEY_SIMPLEX, 1,
-        #                 (0, 0, 255), 2)
+        print('Kich thuoc cua ong sau khi scale',a)
+        cv.putText(img, "{:.1f} mm".format(Hr), (int(Hx - 15), int(Hy)), cv.FONT_HERSHEY_SIMPLEX, 1,
+                        (0, 0, 255), 2)
+        cv.putText(img, "{:.1f} mm".format(Wr), (int(Ex), int(Ey-10)), cv.FONT_HERSHEY_SIMPLEX, 1,
+                        (0, 0, 255), 2)
     return a
 
 

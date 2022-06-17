@@ -10,7 +10,7 @@ centerimg = (sizeH/2, SizeW/2)
 dimensionDrop = 20
 # Load Image
 
-img = cv.imread('processingImage\Image2.jpg', cv.IMREAD_COLOR)
+img = cv.imread('image\imageBeauty\image_30.png', cv.IMREAD_COLOR)
 img = cv.resize(img, dsize = (sizeH,SizeW))
 img = img[290:310,200:400]
 
