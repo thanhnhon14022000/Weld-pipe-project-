@@ -5,6 +5,17 @@ import matplotlib.pyplot as plt
 from imutils import perspective
 from scipy.spatial import distance as dist
 
+# Dimension constant
+alpha = 4
+beta = 0
+sizeH = 600
+SizeW = 600
+center = int(sizeH / 2)
+dimensionDrop = 20
+leftframe = 290
+rightframe = 302
+
+
 # function returns current size of pipe
 def dimensition(size): 
     global scale
@@ -60,18 +71,18 @@ def processDimension(img):
         print('Kich thuoc cua ong: ', Hr)
         a = dimensition(Hr)
         print('Kich thuoc cua ong sau khi scale',a)
-        cv.putText(img, "{:.1f} mm".format(Hr), (int(Hx - 15), int(Hy)), cv.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 0, 255), 2)
-        cv.putText(img, "{:.1f} mm".format(Wr), (int(Ex), int(Ey-10)), cv.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 0, 255), 2)
+        # cv.putText(img, "{:.1f} mm".format(Hr), (int(Hx - 15), int(Hy)), cv.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 0, 255), 2)
+        # cv.putText(img, "{:.1f} mm".format(Wr), (int(Ex), int(Ey-10)), cv.FONT_HERSHEY_SIMPLEX, 1,
+        #                 (0, 0, 255), 2)
     return a
 
+# def detectWeld(img):
+#     imgD = img[270:330,:]
 
 # Dimension constant
-sizeH = 600
-SizeW = 600
-centerimg = (sizeH/2, SizeW/2)
-dimensionDrop = 20
+
+
 
 # Load Image
 img = cv.imread('image\imageBeauty\image_30.png', cv.IMREAD_COLOR)
