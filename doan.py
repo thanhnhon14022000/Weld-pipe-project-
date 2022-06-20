@@ -35,7 +35,7 @@ def dimensition(size):
     if size >=54:
         size = 60
     return size
-    
+
 #The function returns the midpoint of the line
 def midpoint(ptA, ptB):
         return ((ptA[0] + ptB[0]) / 2, (ptA[1] + ptB[1]) / 2)
@@ -104,16 +104,27 @@ def detectWeld(img):
     if weld[0] > leftframe and weld[0] < rightframe:
             print('Mối hàn đã vào tâm') 
     cv.imshow('Onghan1', imgD)
+print('123')
+cam = cv.VideoCapture(0)
 
-# Load Image
-img = cv.imread('image\imageBeauty\image_19.png', cv.IMREAD_COLOR)
-img = cv.resize(img, dsize = (sizeH,SizeW))
 
-size = processDimension(img)
-detectWeld(img)
 
-print('Kich thuoc cua size:', size)
 
-cv.imshow('Onghan', img)
-cv.waitKey(0)
+while True:
+    ret, frame = cam.read()
+    cv.imshow("test", frame)
+    if not ret:
+        break
+    k = cv.waitKey(1)
+    
+    if k%256 == 27:
+        # ESC pressed
+        print("Escape hit, closing...")
+        break
+    
+
+cam.release()
+
 cv.destroyAllWindows()
+
+
