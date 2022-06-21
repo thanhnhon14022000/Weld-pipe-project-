@@ -19,15 +19,16 @@ centerFrame = int((rightframe-leftframe/2))
 # function returns current size of pipe
 def dimensition(size): 
     global scale
+    
     #coefficient that returns the true size of the pipe
-    scale = 10
-    size = size / scale
+    scale = 1.976
+    size = int(size / scale)
     if size <= 25:
         size = 21
     if size > 25 and size < 30:
         size = 27
     if size >=30 and size < 38:
-        size = 34
+        size = 32
     if size >= 38 and size < 45:
         size = 42
     if size >=45 and size < 54:
@@ -35,30 +36,31 @@ def dimensition(size):
     if size >=54:
         size = 60
     return size
-    
+
 #The function returns the midpoint of the line
 def midpoint(ptA, ptB):
         return ((ptA[0] + ptB[0]) / 2, (ptA[1] + ptB[1]) / 2)
 
 # function that returns the size of the pipe
 def processDimension(img):
+    global a 
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-
-    canny = cv.Canny(img_gray,20,100)
+    a = 15
+    canny = cv.Canny(img_gray,20,120)
     kenel = cv.getStructuringElement(cv.MORPH_RECT,(9,9))
     out_1 = cv.morphologyEx(canny,cv.MORPH_CLOSE,kenel,iterations=1)
 
     contour, hierachy = cv.findContours(out_1,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE)
-
+    cv.imshow('123',canny)
     for c in contour:
-        global a
+        
         if cv.contourArea(c) < 3000:
             continue
         box = cv.minAreaRect(c)
         box = cv.boxPoints(box)
         box = np.array(box, dtype="int")
         box = perspective.order_points(box)        
-        # cv.drawContours(img,[box.astype("int")], -1, (0, 255, 0), 2)
+        cv.drawContours(img,[box.astype("int")], -1, (0, 255, 0), 2)
         (A, B, C, D) = box
         (Ex,Ey) = midpoint(A,B)
         (Fx,Fy) = midpoint(B,C)
@@ -71,52 +73,51 @@ def processDimension(img):
         Hr = round(H*P,1)*10
         print('Kich thuoc cua ong: ', Hr)
         a = dimensition(Hr)
+        if a is None:
+            a=25
         print('Kich thuoc cua ong sau khi scale',a)
-        # cv.putText(img, "{:.1f} mm".format(Hr), (int(Hx - 15), int(Hy)), cv.FONT_HERSHEY_SIMPLEX, 1,
-        #                 (0, 0, 255), 2)
-        # cv.putText(img, "{:.1f} mm".format(Wr), (int(Ex), int(Ey-10)), cv.FONT_HERSHEY_SIMPLEX, 1,
+        cv.putText(frame, "{:.1f} mm".format(Hr), (20, 30), cv.FONT_HERSHEY_SIMPLEX, 1,
+                        (0, 0, 255), 1)
+        # cv.putText(frame, "{:.1f} mm".format(Wr), (int(Ex), int(Ey-10)), cv.FONT_HERSHEY_SIMPLEX, 1,
         #                 (0, 0, 255), 2)
     return a
 
-def detectWeld(img):
-    imgD = img[270:330,:]
+cap = cv.VideoCapture(1)
+
+if not cap.isOpened(): # kiem tra xem video có hoat dong khong
+    print('can not open video clip/camera')
+    exit()
 
 
+while True: # su lý video can while true
+    # read frame by frame
+    ret, frame = cap.read() #frame luu gia tri bo nho
+    if not ret:
+        print(' can not read video frame. Video ended?')
+        break
 
-    img_gray = cv.cvtColor(imgD, cv.COLOR_BGR2GRAY)
-    img_gray_ct = cv.addWeighted(img_gray, alpha, np.zeros(img_gray.shape, img_gray.dtype), 0, beta)
 
-    blur_img = cv.blur(img_gray_ct, (7,7))
-    binary_img = cv.adaptiveThreshold(blur_img, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 21, 2)
-    binary_img = cv.erode(binary_img, None, iterations=2)
-    skeleton_img = cv.ximgproc.thinning(binary_img, 0)
+    # frame = cv.rotate(frame, cv.cv2.ROTATE_90_CLOCKWISE)
+    frame = cv.resize(frame, dsize = (sizeH,SizeW))
 
-    lines = cv.HoughLinesP(skeleton_img, 1, np.pi/180, 20, minLineLength=30, maxLineGap=10)
+    imgQ = frame[200:400,200:400]
+    cv.imshow('imgQ', imgQ)
+    dim = processDimension(imgQ)
+    # detectWeld(frame_drop)
+    #Camera center line and center frame
+    cv.line(frame,(center,sizeH),(center,0),(0,255,0),1)
 
-    for line in lines:
-        x1,y1,x2,y2 = line[0]
-        if(abs(x1-x2)) < 5:
-            weld = line[0]
-            print(line)
-            cv.line(imgD,(x1,y1),(x2,y2),(255,0,0),1)
+    # cv.line(frame,(0,100),(600,100),(255,255,0),2)
+    cv.rectangle(frame,(rightframe,sizeH) , (leftframe, 0), (0,0,255),1)
+    #NGANG 
+    cv.line(frame,(0,300),(600,300),(0,255,0),1)
 
-    if weld[0] > leftframe and weld[0] < rightframe:
-            print('Mối hàn đã vào tâm') 
-    cv.imshow('Onghan1', imgD)
+    
 
-# Load Image
-img = cv.imread('image\imageBeauty\image_19.png', cv.IMREAD_COLOR)
-img = cv.resize(img, dsize = (sizeH,SizeW))
+    cv.imshow('video', frame)
+    
+    if cv.waitKey(2) == ord('q'):
+        break
 
-#Camera center line and center frame
-cv.line(img,(center,0),(center,sizeH),(0,255,0),1)
-cv.rectangle(img, (leftframe, 0), (rightframe,sizeH), (0,0,255),1)
-
-size = processDimension(img)
-detectWeld(img)
-
-print('Kich thuoc cua size:', size)
-
-cv.imshow('Onghan', img)
-cv.waitKey(0)
+cap.release() # xoa vung bo nho
 cv.destroyAllWindows()
