@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from imutils import perspective
 from scipy.spatial import distance as dist
+import time
 
 # Dimension constant
 alpha = 4
@@ -15,7 +16,7 @@ dimensionDrop = 20
 leftframe = 290
 rightframe = 310
 centerFrame = int((rightframe-leftframe/2))
-
+arrSizePipe = []
 # function returns current size of pipe
 def dimensition(size): 
     global scale
@@ -43,44 +44,51 @@ def midpoint(ptA, ptB):
 
 # function that returns the size of the pipe
 def processDimension(img):
-    global a 
-    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    a = 15
-    canny = cv.Canny(img_gray,20,120)
-    kenel = cv.getStructuringElement(cv.MORPH_RECT,(9,9))
-    out_1 = cv.morphologyEx(canny,cv.MORPH_CLOSE,kenel,iterations=1)
+    global sizePipe
 
-    contour, hierachy = cv.findContours(out_1,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE)
-    cv.imshow('123',canny)
-    for c in contour:
-        
-        if cv.contourArea(c) < 3000:
-            continue
-        box = cv.minAreaRect(c)
-        box = cv.boxPoints(box)
-        box = np.array(box, dtype="int")
-        box = perspective.order_points(box)        
-        cv.drawContours(img,[box.astype("int")], -1, (0, 255, 0), 2)
-        (A, B, C, D) = box
-        (Ex,Ey) = midpoint(A,B)
-        (Fx,Fy) = midpoint(B,C)
-        (Gx,Gy) = midpoint(C,D)
-        (Hx,Hy) = midpoint(D,A)
-        W = dist.euclidean((Hx,Hy),(Fx,Fy)) 
-        H = dist.euclidean((Ex, Ey),(Gx, Gy))
-        P = 0.027
-        Wr = round(W*P,1)*10
-        Hr = round(H*P,1)*10
-        print('Kich thuoc cua ong: ', Hr)
-        a = dimensition(Hr)
-        if a is None:
-            a=25
-        print('Kich thuoc cua ong sau khi scale',a)
-        cv.putText(frame, "{:.1f} mm".format(Hr), (20, 30), cv.FONT_HERSHEY_SIMPLEX, 1,
-                        (0, 0, 255), 1)
+    sizePipe = 0
+    
+    while sizePipe != 0:
+        img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+        canny = cv.Canny(img_gray,20,120)
+        kenel = cv.getStructuringElement(cv.MORPH_RECT,(9,9))
+        out_1 = cv.morphologyEx(canny,cv.MORPH_CLOSE,kenel,iterations=1)
+
+        contour, hierachy = cv.findContours(out_1,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE)
+
+        cv.imshow('123',canny)
+        for c in contour:
+            if cv.contourArea(c) < 3000:
+                continue
+            box = cv.minAreaRect(c)
+            box = cv.boxPoints(box)
+            box = np.array(box, dtype="int")
+            box = perspective.order_points(box)        
+            cv.drawContours(img,[box.astype("int")], -1, (0, 255, 0), 2)
+            (A, B, C, D) = box
+            (Ex,Ey) = midpoint(A,B)
+            (Fx,Fy) = midpoint(B,C)
+            (Gx,Gy) = midpoint(C,D)
+            (Hx,Hy) = midpoint(D,A)
+            W = dist.euclidean((Hx,Hy),(Fx,Fy)) 
+            H = dist.euclidean((Ex, Ey),(Gx, Gy))
+            P = 0.027
+            Wr = round(W*P,1)*10
+            Hr = round(H*P,1)*10
+            print('Kich thuoc cua ong: ', Hr)
+            scale = dimensition(Hr)
+            arrSizePipe = arrSizePipe.append(scale)
+
+            print(arrSizePipe)
+            if sizePipe is None:
+                sizePipe=25
+            print('Kich thuoc cua ong sau khi scale',scale)
+            cv.putText(frame, "{:.1f} mm".format(Hr), (20, 30), cv.FONT_HERSHEY_SIMPLEX, 1,
+                            (0, 0, 255), 1)
         # cv.putText(frame, "{:.1f} mm".format(Wr), (int(Ex), int(Ey-10)), cv.FONT_HERSHEY_SIMPLEX, 1,
         #                 (0, 0, 255), 2)
-    return a
+    return sizePipe
 
 cap = cv.VideoCapture(1)
 
@@ -95,7 +103,6 @@ while True: # su lý video can while true
     if not ret:
         print(' can not read video frame. Video ended?')
         break
-
 
     # frame = cv.rotate(frame, cv.cv2.ROTATE_90_CLOCKWISE)
     frame = cv.resize(frame, dsize = (sizeH,SizeW))
